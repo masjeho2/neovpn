@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/scan_code"
+        android:title="Scan QR Code"
+        android:icon="@drawable/ic_qr_scan"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/capture_photo"
+        android:title="Ambil Gambar"
+        android:icon="@drawable/ic_camera"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/select_photo"
+        android:title="Pilih dari Galeri"
+        android:icon="@drawable/ic_gallery"
+        app:showAsAction="ifRoom" />
+
+</menu>

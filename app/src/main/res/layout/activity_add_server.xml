@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_dark">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/bg_dark"
+            android:title="Add Server"
+            android:titleTextColor="@color/text_primary" />
+
+        <!-- Remarks -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" android:hint="Remarks"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_server_name" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Protocol -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Protocol" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+        <Spinner android:id="@+id/sp_protocol" android:layout_width="match_parent"
+            android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+
+        <!-- Address & Port -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="2" android:layout_marginEnd="8dp" android:hint="Address"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_address" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary"
+                    android:inputType="textUri" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:hint="Port"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_port" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary"
+                    android:inputType="number" android:text="443" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- ===== VMess ===== -->
+        <LinearLayout android:id="@+id/layout_vmess"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="UUID"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_id" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Security" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <Spinner android:id="@+id/sp_security" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+        </LinearLayout>
+
+        <!-- ===== VLESS ===== -->
+        <LinearLayout android:id="@+id/layout_vless"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="UUID"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_vless_id" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="Flow"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_vless_flow" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- ===== Trojan ===== -->
+        <LinearLayout android:id="@+id/layout_trojan"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="Password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_trojan_password" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- ===== Shadowsocks ===== -->
+        <LinearLayout android:id="@+id/layout_ss"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="Password"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_ss_password" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Method" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <Spinner android:id="@+id/sp_ss_method" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+        </LinearLayout>
+
+        <!-- ===== Transport ===== -->
+        <LinearLayout android:id="@+id/layout_transport"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/bg_card_elevated" android:layout_marginVertical="12dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Network" android:textColor="@color/accent" android:textStyle="bold" android:textSize="14sp"/>
+            <Spinner android:id="@+id/sp_network" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginTop="8dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+
+            <!-- gRPC Mode (only visible when gRPC selected) -->
+            <LinearLayout android:id="@+id/layout_grpc_mode"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:visibility="gone"
+                android:layout_marginBottom="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="gRPC Mode" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+                <Spinner android:id="@+id/sp_grpc_mode" android:layout_width="match_parent"
+                    android:layout_height="48dp" android:layout_marginTop="4dp" android:background="@drawable/spinner_bg" />
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="Host (SNI / Header Host)"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_host" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView android:id="@+id/tv_path_label"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Path / ServiceName" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp" android:hint="Path (WS) / ServiceName (gRPC)"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_path" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <!-- ===== TLS ===== -->
+        <LinearLayout android:id="@+id/layout_tls"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:visibility="gone">
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/bg_card_elevated" android:layout_marginVertical="12dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="TLS Settings" android:textColor="@color/accent" android:textStyle="bold" android:textSize="14sp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:layout_marginBottom="12dp" android:hint="SNI"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_sni" android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:textColor="@color/text_primary" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Fingerprint" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <Spinner android:id="@+id/sp_fingerprint" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="ALPN" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <Spinner android:id="@+id/sp_alpn" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Allow Insecure" android:textColor="@color/text_secondary" android:textSize="12sp"/>
+            <Spinner android:id="@+id/sp_allow_insecure" android:layout_width="match_parent"
+                android:layout_height="48dp" android:layout_marginBottom="12dp" android:background="@drawable/spinner_bg" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save" android:layout_width="match_parent" android:layout_height="56dp"
+            android:layout_marginTop="8dp" android:text="Save" android:textColor="@android:color/white"
+            android:textSize="16sp" android:textStyle="bold" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

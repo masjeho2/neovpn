@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#6C63FF</color>
+    <color name="primary_dark">#5A52D5</color>
+    <color name="primary_light">#8B85FF</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent">#00D9FF</color>
+    <color name="accent_dark">#00B8D4</color>
+    
+    <!-- Status Colors -->
+    <color name="status_connected">#00E676</color>
+    <color name="status_disconnected">#FF5252</color>
+    <color name="status_connecting">#FFD740</color>
+    
+    <!-- Background Colors -->
+    <color name="bg_dark">#0D1117</color>
+    <color name="bg_card">#161B22</color>
+    <color name="bg_card_elevated">#21262D</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8B949E</color>
+    <color name="text_hint">#484F58</color>
+    
+    <!-- Server Card Colors -->
+    <color name="server_card_bg">#1C2128</color>
+    <color name="server_card_selected">#2D333B</color>
+    
+    <!-- Protocol Colors -->
+    <color name="protocol_vmess">#7C4DFF</color>
+    <color name="protocol_vless">#00BCD4</color>
+    <color name="protocol_trojan">#FF6E40</color>
+    <color name="protocol_shadowsocks">#69F0AE</color>
+    
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#6C63FF</color>
+    <color name="gradient_end">#00D9FF</color>
+    
+    <!-- Material Design -->
+    <color name="colorSurface">#0D1117</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="colorSurfaceVariant">#161B22</color>
+</resources>

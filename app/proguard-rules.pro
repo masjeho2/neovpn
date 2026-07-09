@@ -1,0 +1,5 @@
+-keep class go.** { *; }
+-keep class libv2ray.** { *; }
+-keep class org.xray.** { *; }
+-dontwarn go.**
+-dontwarn libv2ray.**

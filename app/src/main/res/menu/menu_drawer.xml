@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_servers"
+            android:title="All Servers" />
+        <item
+            android:id="@+id/nav_subscription"
+            android:title="Subscriptions" />
+        <item
+            android:id="@+id/nav_settings"
+            android:title="Settings" />
+    </group>
+
+    <item android:title="Tools">
+        <menu>
+            <item
+                android:id="@+id/nav_import"
+                android:title="Import Config" />
+            <item
+                android:id="@+id/nav_log"
+                android:title="Connection Log" />
+        </menu>
+    </item>
+
+    <item android:title="About">
+        <menu>
+            <item
+                android:id="@+id/nav_about"
+                android:title="About NeoVPN" />
+            <item
+                android:id="@+id/nav_update"
+                android:title="Check Update" />
+        </menu>
+    </item>
+
+</menu>

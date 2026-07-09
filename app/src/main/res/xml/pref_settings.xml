@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- General -->
+    <CheckBoxPreference
+        android:key="pref_sniffing"
+        android:defaultValue="true"
+        android:title="Enable Sniffing"
+        android:summary="Detect protocol for better routing" />
+
+    <CheckBoxPreference
+        android:key="pref_auto_connect_boot"
+        android:defaultValue="false"
+        android:title="Auto-connect on Boot"
+        android:summary="Start VPN automatically when device boots" />
+
+    <!-- VPN Settings -->
+    <PreferenceCategory android:title="VPN Settings">
+
+        <CheckBoxPreference
+            android:key="pref_prefer_ipv6"
+            android:defaultValue="false"
+            android:title="Prefer IPv6"
+            android:summary="Use IPv6 when available" />
+
+        <CheckBoxPreference
+            android:key="pref_bypass_lan"
+            android:defaultValue="false"
+            android:title="Bypass LAN"
+            android:summary="Exclude local network from VPN" />
+
+        <CheckBoxPreference
+            android:key="pref_local_dns"
+            android:defaultValue="true"
+            android:title="Local DNS"
+            android:summary="Use local DNS for better compatibility" />
+
+        <EditTextPreference
+            android:key="pref_vpn_mtu"
+            android:defaultValue="1500"
+            android:title="MTU"
+            android:summary="VPN tunnel MTU size" />
+
+        <EditTextPreference
+            android:key="pref_vpn_dns"
+            android:defaultValue="8.8.8.8"
+            android:title="Remote DNS"
+            android:summary="DNS server for VPN traffic" />
+
+    </PreferenceCategory>
+
+    <!-- Tunnel Settings -->
+    <PreferenceCategory android:title="Tunnel Settings">
+
+        <CheckBoxPreference
+            android:key="pref_use_hev_tunnel"
+            android:defaultValue="true"
+            android:title="Use hev-socks5-tunnel"
+            android:summary="Faster tunnel implementation (recommended)" />
+
+        <ListPreference
+            android:key="pref_hev_log_level"
+            android:defaultValue="warn"
+            android:title="Tunnel Log Level"
+            android:entries="@array/log_levels"
+            android:entryValues="@array/log_levels" />
+
+    </PreferenceCategory>
+
+    <!-- Core Settings -->
+    <PreferenceCategory android:title="Core Settings">
+
+        <CheckBoxPreference
+            android:key="pref_allow_insecure"
+            android:defaultValue="true"
+            android:title="Allow Insecure (Always)"
+            android:summary="Skip TLS certificate verification (default ON like NekoBox)" />
+
+        <EditTextPreference
+            android:key="pref_socks_port"
+            android:defaultValue="10808"
+            android:title="SOCKS Port"
+            android:summary="Local SOCKS proxy port" />
+
+        <EditTextPreference
+            android:key="pref_http_port"
+            android:defaultValue="10809"
+            android:title="HTTP Port"
+            android:summary="Local HTTP proxy port" />
+
+        <EditTextPreference
+            android:key="pref_remote_dns"
+            android:defaultValue="8.8.8.8"
+            android:title="Remote DNS"
+            android:summary="DNS server for Xray core" />
+
+        <EditTextPreference
+            android:key="pref_domestic_dns"
+            android:defaultValue="localhost"
+            android:title="Domestic DNS"
+            android:summary="DNS for domestic domains" />
+
+        <ListPreference
+            android:key="pref_core_log_level"
+            android:defaultValue="warning"
+            android:title="Core Log Level"
+            android:entries="@array/core_log_levels"
+            android:entryValues="@array/core_log_levels" />
+
+    </PreferenceCategory>
+
+    <!-- Subscription -->
+    <PreferenceCategory android:title="Subscription">
+
+        <CheckBoxPreference
+            android:key="pref_auto_update_sub"
+            android:defaultValue="false"
+            android:title="Auto-update Subscriptions"
+            android:summary="Periodically update server list" />
+
+        <EditTextPreference
+            android:key="pref_auto_update_interval"
+            android:defaultValue="1440"
+            android:title="Update Interval (minutes)"
+            android:summary="How often to check for updates" />
+
+    </PreferenceCategory>
+
+    <!-- UI -->
+    <PreferenceCategory android:title="UI Settings">
+
+        <CheckBoxPreference
+            android:key="pref_show_speed"
+            android:defaultValue="true"
+            android:title="Show Speed"
+            android:summary="Display upload/download speed" />
+
+        <CheckBoxPreference
+            android:key="pref_confirm_remove"
+            android:defaultValue="true"
+            android:title="Confirm Server Delete"
+            android:summary="Show confirmation before deleting" />
+
+        <ListPreference
+            android:key="pref_theme"
+            android:defaultValue="dark"
+            android:title="Theme"
+            android:entries="@array/themes"
+            android:entryValues="@array/themes" />
+
+    </PreferenceCategory>
+
+    <!-- Advanced -->
+    <PreferenceCategory android:title="Advanced">
+
+        <EditTextPreference
+            android:key="pref_delay_test_url"
+            android:defaultValue="http://www.gstatic.com/generate_204"
+            android:title="Delay Test URL"
+            android:summary="URL for latency testing" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

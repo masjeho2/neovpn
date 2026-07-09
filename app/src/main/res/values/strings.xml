@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NeoVPN</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connecting">Connecting…</string>
+    <string name="disconnecting">Disconnecting…</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="servers">Servers</string>
+    <string name="settings">Settings</string>
+    <string name="add_server">Add Server</string>
+    <string name="scan_qr">Scan QR Code</string>
+    <string name="paste_config">Paste Config</string>
+    <string name="subscription">Subscription</string>
+    <string name="import_config">Import Config</string>
+    <string name="export_config">Export Config</string>
+    <string name="no_servers">No servers added yet</string>
+    <string name="tap_to_add">Tap + to add a server</string>
+    <string name="upload">Upload</string>
+    <string name="download">Download</string>
+    <string name="speed">Speed</string>
+    <string name="latency">Latency</string>
+    <string name="protocol">Protocol</string>
+    <string name="server_address">Server Address</string>
+    <string name="server_port">Server Port</string>
+    <string name="server_name">Server Name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="share">Share</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Copied to clipboard</string>
+    <string name="vpn_permission_required">VPN permission is required</string>
+    <string name="notification_channel_name">NeoVPN Service</string>
+    <string name="notification_channel_description">Shows VPN connection status</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Settings Arrays -->
+    <string-array name="log_levels">
+        <item>none</item>
+        <item>error</item>
+        <item>warn</item>
+        <item>info</item>
+        <item>debug</item>
+    </string-array>
+
+    <string-array name="core_log_levels">
+        <item>none</item>
+        <item>error</item>
+        <item>warning</item>
+        <item>info</item>
+        <item>debug</item>
+    </string-array>
+
+    <string-array name="themes">
+        <item>Dark</item>
+        <item>Light</item>
+        <item>System</item>
+    </string-array>
+
+    <string-array name="grpc_modes">
+        <item>gun</item>
+        <item>multi</item>
+    </string-array>
+</resources>
