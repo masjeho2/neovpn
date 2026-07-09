@@ -9,11 +9,20 @@ android {
 
     defaultConfig {
         applicationId = "com.neovpn"
-        minSdk = 24
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
         multiDexEnabled = true
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../neovpn-release.jks")
+            storePassword = "neovpn123"
+            keyAlias = "neovpn"
+            keyPassword = "neovpn123"
+        }
     }
 
     buildTypes {
@@ -23,6 +32,23 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    flavorDimensions += "abi"
+    productFlavors {
+        create("arm") {
+            dimension = "abi"
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            }
+        }
+        create("x86") {
+            dimension = "abi"
+            ndk {
+                abiFilters += listOf("x86", "x86_64")
+            }
         }
     }
 
@@ -48,7 +74,7 @@ android {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
-    
+
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
