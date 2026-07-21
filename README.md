@@ -23,7 +23,7 @@ Android VPN client based on Xray-core with modern UI.
 
 ## Download
 
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen)](https://github.com/masjeho2/NeoVPN/releases)
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen)](https://neovpn.x-me.cloud)
 
 ## Requirements
 
