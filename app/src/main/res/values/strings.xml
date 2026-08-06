@@ -8,6 +8,14 @@
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="servers">Servers</string>
+    <!-- Quota (from /quota endpoint) -->
+    <string name="quota_loading">Memuat…</string>
+    <string name="quota_stale">Menyegarkan…</string>
+    <string name="quota_inactive">Akun tidak aktif</string>
+    <string name="quota_unavailable">Kuota tidak tersedia</string>
+    <string name="quota_unlimited">Tanpa batas</string>
+    <string name="quota_format">%1$s / %2$s (%3$.1f%%)</string>
+    <string name="quota_format_nopct">%1$s / %2$s</string>
     <string name="settings">Settings</string>
     <string name="add_server">Add Server</string>
     <string name="scan_qr">Scan QR Code</string>

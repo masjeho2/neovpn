@@ -48,7 +48,15 @@ class MainActivity : AppCompatActivity() {
     private val vpnReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             vpnState = intent.getStringExtra("state") ?: "disconnected"
-            handler.post { updateUI() }
+            handler.post {
+                updateUI()
+                // Toggle periodic quota refresh sesuai VPN state
+                if (vpnState == "connected") {
+                    serverAdapter?.startPeriodicQuotaRefresh()
+                } else {
+                    serverAdapter?.stopPeriodicQuotaRefresh()
+                }
+            }
         }
     }
 
@@ -74,6 +82,11 @@ class MainActivity : AppCompatActivity() {
         vpnState = if (NeoVpnService.isRunning) "connected" else "disconnected"
         updateUI()
         loadServers()
+
+        // Start periodic quota refresh jika VPN sudah connected saat boot
+        if (vpnState == "connected") {
+            serverAdapter?.startPeriodicQuotaRefresh()
+        }
     }
 
     private fun initViews() {
@@ -145,15 +158,25 @@ class MainActivity : AppCompatActivity() {
             mutableListOf(),
             onServerClick = { profile -> selectServer(profile) },
             onMoreClick = { profile -> showServerOptions(profile) },
-            onRefreshGroup = { subGuid -> refreshSubscription(subGuid) }
+            onRefreshGroup = { subGuid -> refreshSubscription(subGuid) },
+            scope = this
         )
         rvServers.layoutManager = LinearLayoutManager(this)
         rvServers.adapter = serverAdapter
+
+        // Start periodic quota refresh jika VPN sudah connected saat boot
+        if (vpnState == "connected") {
+            serverAdapter?.startPeriodicQuotaRefresh()
+        }
     }
 
     private fun refreshSubscription(subGuid: String) {
         val sub = MmkvManager.getSubscriptionList().find { it.first == subGuid }?.second ?: return
         Toast.makeText(this, "Updating ${sub.remarks}...", Toast.LENGTH_SHORT).show()
+
+        // Force refresh quota juga (invalidate cache + fetch baru)
+        serverAdapter?.forceRefreshQuota(subGuid)
+
         Thread {
             try {
                 val conn = java.net.URL(sub.url).openConnection()
@@ -511,6 +534,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        serverAdapter?.stopPeriodicQuotaRefresh()
         try { unregisterReceiver(vpnReceiver) } catch (_: Exception) {}
     }
 }
