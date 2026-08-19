@@ -6,7 +6,6 @@ import android.util.Log
 import com.google.gson.Gson
 import com.neovpn.dto.QuotaData
 import com.neovpn.dto.QuotaState
-import com.neovpn.util.QuotaFormat
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -72,46 +71,61 @@ object QuotaClient {
      *
      * Algoritma:
      * 1. Parse subscription URL → cek apakah sesuai pola. Kalau tidak → [Result.unsupported].
-     * 2. Cek cache MMKV (`data + timestamp`). Kalau age < 60s → pakai cache, kembalikan [stale? no, fresh].
-     * 3. Kalau cache miss / expired → hit network. Sukses 200 → simpan cache + return. Gagal →
-     *    kalau cache ada → kembalikan cache sebagai [stale]. Kalau tidak ada → [unavailable].
+     * 2. Cek cache MMKV (`data + timestamp`). Kalau age < 60s dan bukan forceRefresh → pakai cache.
+     * 3. Hit network. 200 → simpan cache. 404 → INACTIVE (akun mati, jangan tampilkan sisa kuota lama).
+     *    Error/timeout → stale cache kalau ada, else UNAVAILABLE.
      */
-    suspend fun fetchQuota(context: Context, subscriptionUrl: String): Result = withContext(Dispatchers.IO) {
-        // 1. Parse subscription URL
+    suspend fun fetchQuota(
+        context: Context,
+        subscriptionUrl: String,
+        forceRefresh: Boolean = false,
+    ): Result = withContext(Dispatchers.IO) {
         val parsed = parseQuotaUrl(subscriptionUrl)
         if (parsed == null) {
             return@withContext Result(state = QuotaState.UNSUPPORTED)
         }
         val (quotaUrl, userId) = parsed
 
-        // 2. Cek cache
+        if (forceRefresh) {
+            invalidateCache(userId)
+        }
+
         val cached = readCache(userId)
-        if (cached != null) {
+        if (!forceRefresh && cached != null) {
             val ageMs = System.currentTimeMillis() - cached.timestampMs
             if (ageMs < CACHE_TTL_MS) {
-                // Fresh enough → pakai cache
                 Log.d(TAG, "cache HIT (age=${ageMs}ms) user=$userId")
                 return@withContext toResult(cached.data, fresh = true)
             }
         }
 
-        // 3. Hit network
-        val networkResult = hitNetwork(quotaUrl)
-        when {
-            networkResult != null -> {
-                writeCache(userId, networkResult)
-                Log.d(TAG, "network OK user=$userId pct=${networkResult.percentUsed}")
-                toResult(networkResult, fresh = true)
+        when (val hit = hitNetwork(quotaUrl)) {
+            is NetworkHit.Ok -> {
+                writeCache(userId, hit.data)
+                Log.d(TAG, "network OK user=$userId pct=${hit.data.percentUsed}")
+                toResult(hit.data, fresh = true)
             }
-            cached != null -> {
-                Log.d(TAG, "network FAIL, pakai cache STALE user=$userId")
-                toResult(cached.data, fresh = false)
+            is NetworkHit.NotFound -> {
+                invalidateCache(userId)
+                Log.d(TAG, "network 404 INACTIVE user=$userId")
+                Result(state = QuotaState.INACTIVE, userId = userId)
             }
-            else -> {
-                Log.d(TAG, "network FAIL, no cache user=$userId")
-                Result(state = QuotaState.UNAVAILABLE)
+            is NetworkHit.Fail -> {
+                if (cached != null) {
+                    Log.d(TAG, "network FAIL, pakai cache STALE user=$userId")
+                    toResult(cached.data, fresh = false)
+                } else {
+                    Log.d(TAG, "network FAIL, no cache user=$userId")
+                    Result(state = QuotaState.UNAVAILABLE, userId = userId)
+                }
             }
         }
+    }
+
+    /** Buang cache kuota untuk URL subscription (dipakai tombol refresh). */
+    fun invalidateForUrl(subscriptionUrl: String) {
+        val parsed = parseQuotaUrl(subscriptionUrl) ?: return
+        invalidateCache(parsed.second)
     }
 
     /** Ubah QuotaData + freshness jadi Result dengan state yang sesuai. */
@@ -174,11 +188,17 @@ object QuotaClient {
 
     private fun isUsernameShaped(s: String): Boolean =
         s.length in 3..32 && s.all {
-            (it in 'a'..'z') || it.isDigit() || it == '.' || it == '_' || it == '-'
+            it.isLetterOrDigit() || it == '.' || it == '_' || it == '-'
         }
 
-    /** Hit endpoint /quota. Return QuotaData on 200, null otherwise. */
-    private fun hitNetwork(quotaUrl: String): QuotaData? {
+    private sealed class NetworkHit {
+        data class Ok(val data: QuotaData) : NetworkHit()
+        object NotFound : NetworkHit()
+        object Fail : NetworkHit()
+    }
+
+    /** Hit endpoint /quota. 200 → data, 404 → akun tidak aktif, lainnya / error → Fail. */
+    private fun hitNetwork(quotaUrl: String): NetworkHit {
         return try {
             val req = Request.Builder()
                 .url(quotaUrl)
@@ -188,17 +208,18 @@ object QuotaClient {
             httpClient.newCall(req).execute().use { resp ->
                 val body = resp.body?.string().orEmpty()
                 Log.d(TAG, "hitNetwork $quotaUrl → HTTP ${resp.code} body[0..120]=${body.take(120)}")
-                when {
-                    resp.code == 200 -> {
-                        runCatching { gson.fromJson(body, QuotaData::class.java) }.getOrNull()
+                when (resp.code) {
+                    200 -> {
+                        val data = runCatching { gson.fromJson(body, QuotaData::class.java) }.getOrNull()
+                        if (data != null) NetworkHit.Ok(data) else NetworkHit.Fail
                     }
-                    resp.code == 404 -> null  // user invalid → caller bisa pakai cache (kalau ada)
-                    else -> null
+                    404 -> NetworkHit.NotFound
+                    else -> NetworkHit.Fail
                 }
             }
         } catch (t: Throwable) {
             Log.w(TAG, "network error: ${t.message}")
-            null
+            NetworkHit.Fail
         }
     }
 
@@ -223,9 +244,13 @@ object QuotaClient {
         storage.encode("$userId${HEADER_KEY_LAST}", System.currentTimeMillis())
     }
 
-    /**
-     * Helper preview: ubah result jadi string siap-pakai di UI (untuk logging / future use).
-     */
+    private fun invalidateCache(userId: String) {
+        val storage = cacheStorage ?: return
+        storage.remove(userId)
+        storage.remove("$userId${HEADER_KEY_LAST}")
+    }
+
+    /** Preview ringkas untuk log. */
     fun preview(result: Result): String =
-        QuotaFormat.displayText(result.state, result.data)
+        "${result.state} user=${result.userId ?: result.data?.userId ?: "-"} pct=${result.data?.percentUsed}"
 }

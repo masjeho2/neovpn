@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group_main"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
+            android:checked="true"
+            android:icon="@drawable/ic_nav_home"
             android:title="Home" />
         <item
             android:id="@+id/nav_servers"
+            android:icon="@drawable/ic_nav_servers"
             android:title="All Servers" />
         <item
             android:id="@+id/nav_subscription"
+            android:icon="@drawable/ic_nav_subscription"
             android:title="Subscriptions" />
         <item
             android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_nav_settings"
             android:title="Settings" />
     </group>
 
@@ -20,9 +27,11 @@
         <menu>
             <item
                 android:id="@+id/nav_import"
+                android:icon="@drawable/ic_nav_import"
                 android:title="Import Config" />
             <item
                 android:id="@+id/nav_log"
+                android:icon="@drawable/ic_nav_log"
                 android:title="Connection Log" />
         </menu>
     </item>
@@ -31,11 +40,12 @@
         <menu>
             <item
                 android:id="@+id/nav_about"
+                android:icon="@drawable/ic_nav_about"
                 android:title="About NeoVPN" />
             <item
                 android:id="@+id/nav_update"
+                android:icon="@drawable/ic_nav_update"
                 android:title="Check Update" />
         </menu>
     </item>
-
 </menu>

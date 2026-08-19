@@ -24,14 +24,13 @@ class ConnectionLogActivity : AppCompatActivity() {
         tvLog = findViewById(R.id.tvLog)
         scrollView = findViewById(R.id.scrollView)
 
-        // Add initial log
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+            .setNavigationOnClickListener { finish() }
+
         addLog("=== NeoVPN Connection Log ===")
         addLog("")
-
-        // Read xray logs
         readXrayLogs()
 
-        // Button Refresh
         findViewById<android.widget.ImageButton>(R.id.btnRefresh).setOnClickListener {
             logBuilder.clear()
             tvLog.text = ""
@@ -40,7 +39,6 @@ class ConnectionLogActivity : AppCompatActivity() {
             readXrayLogs()
         }
 
-        // Button Clear
         findViewById<android.widget.ImageButton>(R.id.btnClear).setOnClickListener {
             clearXrayLogs()
             logBuilder.clear()
@@ -48,11 +46,6 @@ class ConnectionLogActivity : AppCompatActivity() {
             addLog("=== NeoVPN Connection Log ===")
             addLog("")
             addLog("Log cleared")
-        }
-
-        // Button Back
-        findViewById<android.widget.ImageButton>(R.id.btnBack).setOnClickListener {
-            finish()
         }
     }
 

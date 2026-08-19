@@ -43,6 +43,8 @@ class ServerAdapter(
     private val quotaJobs = mutableMapOf<String, Job>()
     // Periodic quota refresh job — auto-update tiap 60 detik
     private var quotaPeriodicJob: Job? = null
+    // subGuid yang harus skip cache pada fetch berikutnya (tombol refresh)
+    private val pendingForceRefresh = mutableSetOf<String>()
 
     class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvHeader: TextView = view.findViewById(R.id.tv_section_header)
@@ -93,11 +95,15 @@ class ServerAdapter(
                     holder.btnRefresh.visibility = View.VISIBLE
                     holder.tvTimestamp.visibility = View.VISIBLE
 
-                    val lastUpdate = if (sub.second.lastUpdate > 0) {
+                    holder.tvTimestamp.text = if (sub.second.lastUpdate > 0) {
                         val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-                        sdf.format(Date(sub.second.lastUpdate))
-                    } else "Never"
-                    holder.tvTimestamp.text = "Updated: $lastUpdate"
+                        holder.itemView.context.getString(
+                            R.string.updated_at,
+                            sdf.format(Date(sub.second.lastUpdate))
+                        )
+                    } else {
+                        holder.itemView.context.getString(R.string.updated_never)
+                    }
 
                     holder.btnRefresh.setOnClickListener { onRefreshGroup(sub.first) }
                     holder.tvHeader.setOnClickListener {
@@ -116,11 +122,16 @@ class ServerAdapter(
                     holder.tvQuota.visibility = View.GONE
                 }
 
-                // Expand/collapse
                 val isExpanded = expandedGroups.contains(groupName)
+                holder.btnExpand.animate().cancel()
                 holder.btnExpand.rotation = if (isExpanded) 0f else 270f
                 holder.btnExpand.setOnClickListener {
-                    if (isExpanded) expandedGroups.remove(groupName) else expandedGroups.add(groupName)
+                    val nowExpanded = expandedGroups.contains(groupName)
+                    if (nowExpanded) expandedGroups.remove(groupName) else expandedGroups.add(groupName)
+                    holder.btnExpand.animate()
+                        .rotation(if (nowExpanded) 270f else 0f)
+                        .setDuration(180)
+                        .start()
                     notifyDataSetChanged()
                 }
             }
@@ -150,11 +161,11 @@ class ServerAdapter(
                 holder.tvServerAddress.text = "${server.address}:${server.port}"
                 holder.tvLatency.text = if (server.lastLatency > 0) "${server.lastLatency}ms" else "--"
 
-                // Highlight selected/active server
                 val selectedGuid = MmkvManager.getSelectedServer()?.guid
                 val isActive = server.guid == selectedGuid
                 holder.tvActiveBadge.visibility = if (isActive) View.VISIBLE else View.GONE
                 holder.viewActiveBar.visibility = if (isActive) View.VISIBLE else View.GONE
+                holder.itemView.isSelected = isActive
 
                 if (isActive) {
                     holder.tvServerName.setTextColor(holder.itemView.context.getColor(R.color.accent))
@@ -200,11 +211,14 @@ class ServerAdapter(
 
     /**
      * Force refresh quota untuk subscription tertentu.
-     * Dipanggil saat user tekan tombol refresh (🔄) di header.
-     * Cancel job lama + rebind → bindQuotaToHeader akan fetch fresh dari network.
+     * Dipanggil saat user tekan tombol refresh di header.
+     * Invalidate cache + cancel job lama; rebind berikutnya fetch dari network.
      */
     fun forceRefreshQuota(subGuid: String) {
         quotaJobs[subGuid]?.cancel()
+        pendingForceRefresh.add(subGuid)
+        val url = MmkvManager.getSubscriptionList().find { it.first == subGuid }?.second?.url
+        if (!url.isNullOrBlank()) QuotaClient.invalidateForUrl(url)
         android.util.Log.d("ServerAdapter", "forceRefreshQuota: subGuid=$subGuid")
         notifyDataSetChanged()
     }
@@ -237,31 +251,31 @@ class ServerAdapter(
     /**
      * Fetch quota async & bind ke `holder.tvQuota`.
      * - Cancel job sebelumnya untuk subGuid yang sama (kalau sedang fetch).
-     * - Pakai scope dari MainActivity (dipass via constructor); kalau null,
-     *   pakai GlobalScope sebagai fallback (tidak ideal, tapi tidak crash).
      * - UNSUPPORTED (URL subscription tidak sesuai pola /quota) → sembunyikan tvQuota.
      */
     private fun bindQuotaToHeader(holder: HeaderViewHolder, subGuid: String, subscriptionUrl: String) {
-        // Default: sembunyikan dulu, biar tidak "Memuat…" stale dari bind sebelumnya.
-        holder.tvQuota.visibility = View.GONE
-
         if (subscriptionUrl.isBlank()) {
-            return  // tidak ada URL → sembunyikan
-        }
-
-        // Cancel fetch sebelumnya untuk subGuid ini kalau masih jalan.
-        quotaJobs[subGuid]?.cancel()
-        val s = scope
-        if (s == null) {
-            // Tidak ada scope → silent skip, jangan crash.
+            holder.tvQuota.visibility = View.GONE
             return
         }
 
+        quotaJobs[subGuid]?.cancel()
+        val s = scope
+        if (s == null) {
+            holder.tvQuota.visibility = View.GONE
+            return
+        }
+
+        val ctx = holder.itemView.context
+        holder.tvQuota.text = QuotaFormat.displayText(ctx, QuotaState.LOADING, null)
+        holder.tvQuota.setTextColor(ctx.getColor(QuotaFormat.colorRes(QuotaState.LOADING, null)))
+        holder.tvQuota.visibility = View.VISIBLE
+
+        val force = pendingForceRefresh.remove(subGuid)
         val job = s.lifecycleScope.launch {
-            val ctx = holder.itemView.context.applicationContext
-            val r = QuotaClient.fetchQuota(ctx, subscriptionUrl)
-            android.util.Log.d("ServerAdapter", "bindQuotaToHeader subGuid=$subGuid state=${r.state} data=${r.data}")
-            // Cek agar holder masih terikat posisi ini (race dengan notify).
+            val appCtx = holder.itemView.context.applicationContext
+            val r = QuotaClient.fetchQuota(appCtx, subscriptionUrl, forceRefresh = force)
+            android.util.Log.d("ServerAdapter", "bindQuotaToHeader subGuid=$subGuid state=${r.state}")
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_POSITION || pos >= items.size) return@launch
 
@@ -270,7 +284,9 @@ class ServerAdapter(
                     holder.tvQuota.visibility = View.GONE
                 }
                 else -> {
-                    holder.tvQuota.text = QuotaFormat.displayText(r.state, r.data)
+                    val bindCtx = holder.itemView.context
+                    holder.tvQuota.text = QuotaFormat.displayText(bindCtx, r.state, r.data)
+                    holder.tvQuota.setTextColor(bindCtx.getColor(QuotaFormat.colorRes(r.state, r.data)))
                     holder.tvQuota.visibility = View.VISIBLE
                 }
             }

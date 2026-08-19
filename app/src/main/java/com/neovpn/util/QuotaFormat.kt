@@ -1,55 +1,67 @@
 package com.neovpn.util
 
+import android.content.Context
+import androidx.annotation.ColorRes
+import com.neovpn.R
 import com.neovpn.dto.QuotaData
 import com.neovpn.dto.QuotaState
 import java.util.Locale
 
 /**
  * Helper format kuota untuk tampilan di ServerAdapter.
- * Design goal: hasil singkat (1 baris), bahasa Indonesia, koma desimal (id-ID style).
+ * Design goal: hasil singkat (1 baris), koma desimal tetap (Locale.US).
  */
 object QuotaFormat {
 
-    /** Format bytes → string manusia. Mengikuti format README_QUOTA_API.md. */
+    /** Format bytes → string manusia. */
     fun formatBytes(bytes: Long?, decimals: Int = 2): String {
         if (bytes == null || bytes <= 0) return "0 B"
         val k = 1024.0
         val units = arrayOf("B", "KB", "MB", "GB", "TB")
         val i = minOf(units.size - 1, (Math.log(bytes.toDouble()) / Math.log(k)).toInt())
         val raw = bytes / Math.pow(k, i.toDouble())
-        // Locale.US → koma desimal konsisten (tidak ikut locale device, biar tidak pecah di beberapa device)
         return String.format(Locale.US, "%.${decimals}f %s", raw, units[i])
     }
 
     /**
      * Render teks ringkas untuk `tv_quota` di header.
-     *
-     * Contoh hasil:
-     *   OK       → "99,88 GB / 100 GB (0,1%)"
-     *   UNLIMITED→ "Tanpa batas"
-     *   INACTIVE → "Akun tidak aktif"
-     *   UNAVAILABLE → "Kuota tidak tersedia"
-     *   STALE    → "Menyegarkan…"  (kalau ada cache sebelumnya, tapi expired)
-     *   LOADING  → "Memuat…"
-     *   UNSUPPORTED → ""  (sembunyikan via tv_quota.visibility = GONE)
+     * String diambil dari resources supaya UI bisa dilokalkan.
      */
-    fun displayText(state: QuotaState, data: QuotaData?): String {
+    fun displayText(context: Context, state: QuotaState, data: QuotaData?): String {
         return when (state) {
-            QuotaState.LOADING    -> "Memuat…"
-            QuotaState.STALE      -> "Menyegarkan…"
-            QuotaState.UNSUPPORTED -> ""  // tampilkan di-hidden, bukan tulisan
-            QuotaState.INACTIVE   -> "Akun tidak aktif"
-            QuotaState.UNAVAILABLE -> "Kuota tidak tersedia"
+            QuotaState.LOADING -> context.getString(R.string.quota_loading)
+            QuotaState.STALE -> context.getString(R.string.quota_stale)
+            QuotaState.UNSUPPORTED -> ""
+            QuotaState.INACTIVE -> context.getString(R.string.quota_inactive)
+            QuotaState.UNAVAILABLE -> context.getString(R.string.quota_unavailable)
             QuotaState.OK, QuotaState.UNLIMITED -> {
                 if (data == null) return "—"
-                if (data.isUnlimited) return "Tanpa batas"
+                if (data.isUnlimited) return context.getString(R.string.quota_unlimited)
                 val used = formatBytes(data.usedBytes)
                 val total = formatBytes(data.quotaBytes)
                 val pct = data.percentUsed
-                return if (pct != null) {
-                    String.format(Locale.US, "%s / %s (%.1f%%)", used, total, pct)
+                if (pct != null) {
+                    context.getString(R.string.quota_format, used, total, pct)
                 } else {
-                    "$used / $total"
+                    context.getString(R.string.quota_format_nopct, used, total)
+                }
+            }
+        }
+    }
+
+    @ColorRes
+    fun colorRes(state: QuotaState, data: QuotaData?): Int {
+        return when (state) {
+            QuotaState.INACTIVE -> R.color.status_disconnected
+            QuotaState.UNAVAILABLE -> R.color.status_connecting
+            QuotaState.LOADING, QuotaState.STALE, QuotaState.UNSUPPORTED -> R.color.text_hint
+            QuotaState.UNLIMITED -> R.color.status_connected
+            QuotaState.OK -> {
+                val pct = data?.percentUsed ?: 0.0
+                when {
+                    pct >= 90.0 -> R.color.status_disconnected
+                    pct >= 75.0 -> R.color.status_connecting
+                    else -> R.color.text_secondary
                 }
             }
         }

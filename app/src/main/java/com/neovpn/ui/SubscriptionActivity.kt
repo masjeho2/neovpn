@@ -31,6 +31,9 @@ class SubscriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subscription)
 
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+            .setNavigationOnClickListener { finish() }
+
         rvSubscriptions = findViewById(R.id.rv_subscriptions)
         tvNoSubs = findViewById(R.id.tv_no_subs)
 
