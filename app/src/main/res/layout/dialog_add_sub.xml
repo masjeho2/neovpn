@@ -6,34 +6,31 @@
     android:padding="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.NeoVPN.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:hint="Name"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        android:hint="Name">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_sub_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:inputType="text" />
-
+            android:inputType="text"
+            android:textColor="@color/text_primary" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.NeoVPN.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Subscription URL"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        android:hint="Subscription URL">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_sub_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_primary"
-            android:inputType="textUri" />
-
+            android:inputType="textUri"
+            android:textColor="@color/text_primary" />
     </com.google.android.material.textfield.TextInputLayout>
-
 </LinearLayout>

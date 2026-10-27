@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true">
-        <shape android:shape="rectangle">
-            <corners android:radius="12dp" />
-            <solid android:color="@color/server_card_selected" />
-            <stroke android:width="2dp" android:color="@color/primary" />
-        </shape>
-    </item>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/accent_24">
     <item>
-        <shape android:shape="rectangle">
-            <corners android:radius="12dp" />
-            <solid android:color="@color/server_card_bg" />
-        </shape>
+        <selector>
+            <item android:state_selected="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp" />
+                    <solid android:color="@color/server_card_selected" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/accent_24" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="16dp" />
+                    <solid android:color="@color/server_card_bg" />
+                    <stroke
+                        android:width="1dp"
+                        android:color="@color/glass_stroke" />
+                </shape>
+            </item>
+        </selector>
     </item>
-</selector>
+</ripple>

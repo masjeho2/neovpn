@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingHorizontal="4dp">
+        android:paddingHorizontal="4dp"
+        android:minHeight="44dp">
 
         <!-- Group Name (clickable to edit sub) -->
         <TextView
@@ -22,17 +23,18 @@
             android:layout_weight="1"
             android:text="Subscription"
             android:textColor="@color/text_primary"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textStyle="bold"
+            android:letterSpacing="0.02"
             android:textAllCaps="false"
             android:drawablePadding="4dp" />
 
         <!-- Refresh button (only for subscriptions) -->
         <ImageButton
             android:id="@+id/btn_refresh_sub"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/icon_btn_bg"
             android:src="@drawable/ic_refresh"
             android:scaleType="centerInside"
             android:contentDescription="Update"
@@ -42,9 +44,9 @@
         <!-- Expand/Collapse arrow -->
         <ImageButton
             android:id="@+id/btn_expand"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/icon_btn_bg"
             android:src="@drawable/ic_arrow_down"
             android:scaleType="centerInside"
             android:contentDescription="Expand"
@@ -70,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginTop="2dp"
-        android:text="Memuat…"
+        android:text="@string/quota_loading"
         android:textColor="@color/text_secondary"
         android:textSize="11sp"
         android:maxLines="1"

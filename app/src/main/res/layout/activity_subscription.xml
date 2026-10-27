@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,8 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/bg_dark"
-        android:title="Subscriptions"
-        android:titleTextColor="@color/text_primary" />
+        app:navigationIcon="@drawable/ic_back"
+        app:title="Subscriptions"
+        app:titleTextAppearance="@style/TextAppearance.NeoVPN.Toolbar"
+        app:titleTextColor="@color/text_primary" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,22 +25,24 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_add_sub"
+            style="@style/Widget.NeoVPN.ActionButton"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:text="Add"
-            android:textColor="@android:color/white"
-            android:textSize="13sp" />
+            app:icon="@drawable/ic_add"
+            app:iconTint="@color/accent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_paste_sub"
+            style="@style/Widget.NeoVPN.ActionButton"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:text="Paste URL"
-            android:textColor="@android:color/white"
-            android:textSize="13sp" />
+            app:icon="@drawable/ic_paste"
+            app:iconTint="@color/protocol_trojan" />
 
     </LinearLayout>
 

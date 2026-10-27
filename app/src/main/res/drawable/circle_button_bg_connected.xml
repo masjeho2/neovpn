@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <gradient
-        android:startColor="@color/status_connected"
-        android:endColor="#00C853"
-        android:angle="135" />
-    <size
-        android:width="200dp"
-        android:height="200dp" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <gradient
+                android:angle="135"
+                android:endColor="#00C853"
+                android:startColor="@color/status_connected"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item
+        android:bottom="18dp"
+        android:left="18dp"
+        android:right="18dp"
+        android:top="18dp">
+        <shape android:shape="oval">
+            <stroke
+                android:width="1.5dp"
+                android:color="#88FFFFFF" />
+            <solid android:color="#14000000" />
+        </shape>
+    </item>
+</layer-list>

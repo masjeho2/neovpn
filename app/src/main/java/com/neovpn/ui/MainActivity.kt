@@ -10,7 +10,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -33,12 +37,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var btnConnect: ImageButton
     private lateinit var connectButtonBg: View
+    private lateinit var connectPulse: View
     private lateinit var tvStatus: TextView
     private lateinit var tvServerName: TextView
     private lateinit var tvUpload: TextView
     private lateinit var tvDownload: TextView
     private lateinit var rvServers: RecyclerView
     private lateinit var tvNoServers: TextView
+    private lateinit var navView: NavigationView
 
     private var serverAdapter: ServerAdapter? = null
     private val handler = Handler(Looper.getMainLooper())
@@ -93,12 +99,14 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         btnConnect = findViewById(R.id.btn_connect)
         connectButtonBg = findViewById(R.id.connect_button_bg)
+        connectPulse = findViewById(R.id.connect_pulse)
         tvStatus = findViewById(R.id.tv_status)
         tvServerName = findViewById(R.id.tv_server_name)
         tvUpload = findViewById(R.id.tv_upload)
         tvDownload = findViewById(R.id.tv_download)
         rvServers = findViewById(R.id.rv_servers)
         tvNoServers = findViewById(R.id.tv_no_servers)
+        navView = findViewById(R.id.nav_view)
     }
 
     private fun setupToolbar() {
@@ -123,11 +131,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDrawer() {
-        val navView = findViewById<NavigationView>(R.id.nav_view)
+        navView.getHeaderView(0)?.findViewById<TextView>(R.id.tv_nav_version)?.text =
+            "v${getAppVersion()}"
+        navView.setCheckedItem(R.id.nav_home)
         navView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> { drawerLayout.closeDrawer(GravityCompat.START); true }
-                R.id.nav_servers -> { drawerLayout.closeDrawer(GravityCompat.START); true }
+                R.id.nav_home -> {
+                    navView.setCheckedItem(R.id.nav_home)
+                    drawerLayout.closeDrawer(GravityCompat.START); true
+                }
+                R.id.nav_servers -> {
+                    navView.setCheckedItem(R.id.nav_servers)
+                    rvServers.post { rvServers.parent?.requestChildFocus(rvServers, rvServers) }
+                    drawerLayout.closeDrawer(GravityCompat.START); true
+                }
                 R.id.nav_subscription -> {
                     startActivity(Intent(this, SubscriptionActivity::class.java))
                     drawerLayout.closeDrawer(GravityCompat.START); true
@@ -146,6 +163,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_about -> {
                     showAboutDialog()
+                    drawerLayout.closeDrawer(GravityCompat.START); true
+                }
+                R.id.nav_update -> {
+                    Toast.makeText(this, "You're on v${getAppVersion()}", Toast.LENGTH_SHORT).show()
                     drawerLayout.closeDrawer(GravityCompat.START); true
                 }
                 else -> false
@@ -230,6 +251,25 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<MaterialButton>(R.id.btn_connection_log).setOnClickListener {
             startActivity(Intent(this, ConnectionLogActivity::class.java))
+        }
+
+        applyPress(btnConnect)
+        applyPress(connectButtonBg)
+        applyPress(findViewById(R.id.btn_add_server))
+        applyPress(findViewById(R.id.btn_scan_qr))
+        applyPress(findViewById(R.id.btn_paste))
+        applyPress(findViewById(R.id.btn_connection_log))
+    }
+
+    private fun applyPress(view: View) {
+        view.setOnTouchListener { v, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN ->
+                    v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(90).start()
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL ->
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(160).start()
+            }
+            false
         }
     }
 
@@ -448,9 +488,17 @@ class MainActivity : AppCompatActivity() {
     private fun showAboutDialog() {
         AlertDialog.Builder(this)
             .setTitle("NeoVPN")
-            .setMessage("Version 1.0.0\n\nModern VPN client powered by Xray-core.\n\nSupports: VMess, VLESS, Trojan, Shadowsocks\n\nTransport: TCP, WebSocket, gRPC, H2")
+            .setMessage(getString(R.string.about_message, getAppVersion()))
             .setPositiveButton("OK", null)
             .show()
+    }
+
+    private fun getAppVersion(): String {
+        return try {
+            packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0.4"
+        } catch (_: Exception) {
+            "1.0.4"
+        }
     }
 
     private fun loadServers() {
@@ -466,25 +514,63 @@ class MainActivity : AppCompatActivity() {
 
         when (vpnState) {
             "connected" -> {
-                tvStatus.text = "Connected"
+                tvStatus.text = getString(R.string.connected)
                 tvStatus.setTextColor(getColor(R.color.status_connected))
+                tvStatus.setBackgroundResource(R.drawable.status_chip_bg)
+                tvStatus.background.mutate().setTint(getColor(R.color.status_chip_on))
                 connectButtonBg.setBackgroundResource(R.drawable.circle_button_bg_connected)
                 tvServerName.text = selectedServer?.remarks ?: "Unknown"
+                startConnectPulse()
                 if (speedMonitor == null) startSpeedMonitor()
             }
             "connecting" -> {
-                tvStatus.text = "Connecting..."
+                tvStatus.text = getString(R.string.connecting)
                 tvStatus.setTextColor(getColor(R.color.status_connecting))
-                connectButtonBg.setBackgroundResource(R.drawable.circle_button_bg)
+                tvStatus.setBackgroundResource(R.drawable.status_chip_bg)
+                tvStatus.background.mutate().setTint(getColor(R.color.status_chip_wait))
+                connectButtonBg.setBackgroundResource(R.drawable.circle_button_bg_connecting)
                 tvServerName.text = selectedServer?.remarks ?: "Unknown"
+                stopConnectPulse()
             }
             else -> {
-                tvStatus.text = "Disconnected"
+                tvStatus.text = getString(R.string.disconnected)
                 tvStatus.setTextColor(getColor(R.color.status_disconnected))
+                tvStatus.setBackgroundResource(R.drawable.status_chip_bg)
+                tvStatus.background.mutate().setTint(getColor(R.color.status_chip_off))
                 connectButtonBg.setBackgroundResource(R.drawable.circle_button_bg)
                 tvServerName.text = selectedServer?.remarks ?: "No server selected"
+                stopConnectPulse()
                 stopSpeedMonitor()
             }
+        }
+    }
+
+    private fun startConnectPulse() {
+        connectPulse.visibility = View.VISIBLE
+        if (connectPulse.animation == null) {
+            connectPulse.startAnimation(AnimationUtils.loadAnimation(this, R.anim.pulse_ring))
+        }
+    }
+
+    private fun stopConnectPulse() {
+        connectPulse.clearAnimation()
+        connectPulse.visibility = View.GONE
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java)); true
+            }
+            R.id.action_subscription -> {
+                startActivity(Intent(this, SubscriptionActivity::class.java)); true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -535,6 +621,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         serverAdapter?.stopPeriodicQuotaRefresh()
+        stopConnectPulse()
         try { unregisterReceiver(vpnReceiver) } catch (_: Exception) {}
     }
 }

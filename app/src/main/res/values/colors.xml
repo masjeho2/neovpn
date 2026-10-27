@@ -42,4 +42,15 @@
     <color name="colorSurface">#0D1117</color>
     <color name="colorOnSurface">#FFFFFF</color>
     <color name="colorSurfaceVariant">#161B22</color>
+
+    <!-- Glass / motion -->
+    <color name="glass_stroke">#22FFFFFF</color>
+    <color name="glass_fill">#141C2128</color>
+    <color name="accent_12">#1F00D9FF</color>
+    <color name="accent_24">#3D00D9FF</color>
+    <color name="nav_selected_bg">#2400D9FF</color>
+    <color name="ripple_light">#33FFFFFF</color>
+    <color name="status_chip_off">#26FF5252</color>
+    <color name="status_chip_on">#2600E676</color>
+    <color name="status_chip_wait">#26FFD740</color>
 </resources>

@@ -1,110 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_server"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/server_card_bg"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="0dp">
+    android:background="@drawable/server_item_bg"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical">
+        android:paddingStart="12dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="12dp">
 
-        <!-- Active indicator bar -->
         <View
             android:id="@+id/view_active_bar"
-            android:layout_width="4dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="12dp"
+            android:layout_width="3dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="10dp"
             android:background="@color/accent"
             android:visibility="gone" />
 
-        <!-- Protocol Icon -->
         <TextView
             android:id="@+id/tv_protocol"
-            android:layout_width="48dp"
+            android:layout_width="wrap_content"
             android:layout_height="24dp"
             android:background="@drawable/protocol_bg"
+            android:ellipsize="end"
             android:gravity="center"
+            android:maxLines="1"
+            android:minWidth="52dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="VMess"
             android:textColor="@android:color/white"
             android:textSize="10sp"
-            android:textStyle="bold"
-            android:text="VMess" />
+            android:textStyle="bold" />
 
-        <!-- Server Info -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="12dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_server_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Server Name"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_server_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="monospace"
+                android:maxLines="1"
                 android:text="server.com:443"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
+                android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Active badge -->
         <TextView
             android:id="@+id/tv_active_badge"
             android:layout_width="wrap_content"
             android:layout_height="20dp"
+            android:layout_marginEnd="6dp"
             android:background="@drawable/active_badge_bg"
             android:gravity="center"
+            android:letterSpacing="0.06"
             android:paddingHorizontal="8dp"
-            android:text="ACTIVE"
+            android:text="ON"
             android:textColor="@android:color/white"
             android:textSize="9sp"
             android:textStyle="bold"
-            android:visibility="gone"
-            android:layout_marginEnd="8dp" />
+            android:visibility="gone" />
 
-        <!-- Latency -->
         <TextView
             android:id="@+id/tv_latency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:fontFamily="sans-serif-medium"
+            android:minWidth="36dp"
             android:text="--"
+            android:textAlignment="textEnd"
             android:textColor="@color/status_connected"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginEnd="12dp" />
+            android:textSize="12sp" />
 
-        <!-- More Options -->
         <ImageButton
             android:id="@+id/btn_more"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_more"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/icon_btn_bg"
             android:contentDescription="More options"
+            android:padding="8dp"
+            android:src="@drawable/ic_more"
             app:tint="@color/text_secondary" />
-
     </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+</FrameLayout>

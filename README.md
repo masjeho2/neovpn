@@ -2,7 +2,7 @@
 
 Android VPN client based on Xray-core with modern UI.
 
-![NeoVPN](https://img.shields.io/badge/NeoVPN-v1.0.0-blue) ![Android](https://img.shields.io/badge/Android-7.0+-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
+![NeoVPN](https://img.shields.io/badge/NeoVPN-v1.0.4-blue) ![Android](https://img.shields.io/badge/Android-6.0+-green) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## Features
 
@@ -13,6 +13,7 @@ Android VPN client based on Xray-core with modern UI.
 - 🔗 **Subscription** - Import subscription URLs
 - ⚡ **Quick Settings** - Toggle VPN from notification shade (cat icon 🐱)
 - 📊 **Connection Log** - View Xray access & error logs
+- 📶 **Quota** - Show remaining data for Jeho-style subscription URLs
 - 🎨 **Modern UI** - Material Design with dark theme
 
 ## Screenshots
@@ -27,7 +28,7 @@ Android VPN client based on Xray-core with modern UI.
 
 ## Requirements
 
-- Android 7.0 (API 24) or higher
+- Android 6.0 (API 23) or higher
 - Internet connection
 
 ## Building from Source
@@ -45,11 +46,11 @@ Android VPN client based on Xray-core with modern UI.
 git clone https://github.com/masjeho2/NeoVPN.git
 cd NeoVPN
 
-# Build debug APK
-./gradlew assembleDebug
+# Build debug APK (arm)
+./gradlew assembleArmDebug
 
-# Build release APK
-./gradlew assembleRelease
+# Build release APK (arm)
+./gradlew assembleArmRelease
 ```
 
 The APK will be at `app/build/outputs/apk/`
@@ -79,17 +80,19 @@ The APK will be at `app/build/outputs/apk/`
 ```
 NeoVPN/
 ├── app/src/main/java/com/neovpn/
-│   ├── dto/           # Data models
+│   ├── dto/           # Data models (Profile, Subscription, Quota)
 │   ├── fmt/           # Config parsers
-│   ├── handler/       # Business logic
-│   ├── receiver/      # Broadcast receivers
+│   ├── handler/       # MMKV, settings, Xray JSON
+│   ├── network/       # Quota HTTP client
+│   ├── receiver/      # Boot auto-connect
 │   ├── service/       # VPN & Tile services
 │   ├── ui/            # Activities & Adapters
-│   └── util/          # Utilities
+│   └── util/          # Speed, quota format
+├── app/src/main/java/com/v2ray/ang/service/  # hev-socks5-tunnel JNI
 ├── app/src/main/res/  # Resources
 └── app/libs/          # Native libraries
     ├── libv2ray.aar   # Xray-core
-    └── arm64-v8a/     # hev-socks5-tunnel
+    └── */libhev-socks5-tunnel.so
 ```
 
 ## Libraries
