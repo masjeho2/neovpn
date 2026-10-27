@@ -43,32 +43,35 @@ class NeoVpnService : VpnService() {
         if (isRunning) return
         isConnecting = true
 
-        try {
-            startForeground(1, createNotification("Connecting..."))
+        // Start notification immediately (prevent ANR)
+        startForeground(1, createNotification("Connecting..."))
 
-            val profile = MmkvManager.getSelectedServer()
-            if (profile == null) {
-                Log.e(NeoApplication.TAG, "No server selected")
-                stopSelf()
-                return
-            }
+        // Heavy work (Xray JNI, VPN establish, TProxy) in background thread
+        Thread {
+            try {
+                val profile = MmkvManager.getSelectedServer()
+                if (profile == null) {
+                    Log.e(NeoApplication.TAG, "No server selected")
+                    stopSelf()
+                    return@Thread
+                }
 
-            // Start xray core
-            XrayController.init(applicationContext)
-            XrayController.setVpnService(this)
-            if (!XrayController.start(profile, applicationContext)) {
-                Log.e(NeoApplication.TAG, "Failed to start xray core")
-                stopSelf()
-                return
-            }
+                // Start xray core
+                XrayController.init(applicationContext)
+                XrayController.setVpnService(this)
+                if (!XrayController.start(profile, applicationContext)) {
+                    Log.e(NeoApplication.TAG, "Failed to start xray core")
+                    stopSelf()
+                    return@Thread
+                }
 
-            val socksPort = SettingsManager.getSocksPort()
-            val vpnDns = SettingsManager.getVpnDns()
-            val mtu = SettingsManager.getVpnMtu()
-            val hevLogLevel = SettingsManager.getHevLogLevel()
+                val socksPort = SettingsManager.getSocksPort()
+                val vpnDns = SettingsManager.getVpnDns()
+                val mtu = SettingsManager.getVpnMtu()
+                val hevLogLevel = SettingsManager.getHevLogLevel()
 
-            // Write hev-socks5-tunnel config
-            val configContent = """
+                // Write hev-socks5-tunnel config
+                val configContent = """
 tunnel:
   mtu: $mtu
   ipv4: 10.0.0.2
@@ -81,54 +84,55 @@ misc:
   udp-read-write-timeout: 60000
   log-level: $hevLogLevel
 """
-            val configFile = File(filesDir, "hev-socks5-tunnel.yaml")
-            FileOutputStream(configFile).use { it.write(configContent.toByteArray()) }
+                val configFile = File(filesDir, "hev-socks5-tunnel.yaml")
+                FileOutputStream(configFile).use { it.write(configContent.toByteArray()) }
 
-            // Setup VPN interface
-            val builder = Builder()
-                .setSession("NeoVPN")
-                .addAddress("10.0.0.2", 32)
-                .addRoute("0.0.0.0", 0)
-                .addDnsServer(vpnDns)
-                .setMtu(mtu)
+                // Setup VPN interface
+                val builder = Builder()
+                    .setSession("NeoVPN")
+                    .addAddress("10.0.0.2", 32)
+                    .addRoute("0.0.0.0", 0)
+                    .addDnsServer(vpnDns)
+                    .setMtu(mtu)
 
-            // Exclude own app from VPN (prevent loop)
-            try {
-                builder.addDisallowedApplication(packageName)
+                // Exclude own app from VPN (prevent loop)
+                try {
+                    builder.addDisallowedApplication(packageName)
+                } catch (e: Exception) {
+                    Log.w(NeoApplication.TAG, "Could not disallow own package: ${e.message}")
+                }
+
+                // IPv6 support
+                if (SettingsManager.isPreferIPv6()) {
+                    builder.addRoute("::", 0)
+                    builder.addDnsServer("2001:4860:4860::8888")
+                }
+
+                vpnInterface = builder.establish()
+
+                val fd = vpnInterface?.fd ?: -1
+                Log.d(NeoApplication.TAG, "VPN fd=$fd, socksPort=$socksPort, configFile=${configFile.absolutePath}")
+
+                // Start hev-socks5-tunnel via JNI
+                try {
+                    com.v2ray.ang.service.TProxyService.start(configFile.absolutePath, fd)
+                    Log.d(NeoApplication.TAG, "hev-socks5-tunnel started")
+                } catch (e: Exception) {
+                    Log.e(NeoApplication.TAG, "hev-socks5-tunnel failed: ${e.message}", e)
+                }
+
+                isConnecting = false
+                isRunning = true
+
+                startForeground(1, createNotification("Connected to ${profile.remarks}"))
+                broadcastState("connected")
+
+                Log.d(NeoApplication.TAG, "VPN started successfully")
             } catch (e: Exception) {
-                Log.w(NeoApplication.TAG, "Could not disallow own package: ${e.message}")
+                Log.e(NeoApplication.TAG, "Failed to start VPN", e)
+                stopVpn()
             }
-
-            // IPv6 support
-            if (SettingsManager.isPreferIPv6()) {
-                builder.addRoute("::", 0)
-                builder.addDnsServer("2001:4860:4860::8888")
-            }
-
-            vpnInterface = builder.establish()
-
-            val fd = vpnInterface?.fd ?: -1
-            Log.d(NeoApplication.TAG, "VPN fd=$fd, socksPort=$socksPort, configFile=${configFile.absolutePath}")
-
-            // Start hev-socks5-tunnel via JNI
-            try {
-                com.v2ray.ang.service.TProxyService.start(configFile.absolutePath, fd)
-                Log.d(NeoApplication.TAG, "hev-socks5-tunnel started")
-            } catch (e: Exception) {
-                Log.e(NeoApplication.TAG, "hev-socks5-tunnel failed: ${e.message}", e)
-            }
-
-            isConnecting = false
-            isRunning = true
-
-            startForeground(1, createNotification("Connected to ${profile.remarks}"))
-            broadcastState("connected")
-
-            Log.d(NeoApplication.TAG, "VPN started successfully")
-        } catch (e: Exception) {
-            Log.e(NeoApplication.TAG, "Failed to start VPN", e)
-            stopVpn()
-        }
+        }.start()
     }
 
     private fun stopVpn() {
